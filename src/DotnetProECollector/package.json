@@ -4,7 +4,7 @@
   "scripts": {
     "start": "tsc && concurrently \"npm run tsc:w\" \"npm run lite\" ",
     "lite": "lite-server",
-    "postinstall": "typings install",
+    "postinstall": "typings install && gulp copy_deps",
     "tsc": "tsc",
     "tsc:w": "tsc -w",
     "typings": "typings"
