@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>DotnetproECollectorClient</title>
+  <base href="/"> {{#unless environment.production}}
+  <script src="/ember-cli-live-reload.js" type="text/javascript"></script> {{/unless}}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css"/>    
+</head>
+
+<body>
+  <app-root>Loading...</app-root>
+
+  {{#each scripts.polyfills}}
+  <script src="{{.}}"></script> {{/each}}
+  <script src="assets/jquery/jquery.min.js"></script>
+  <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+  <script>
+      System.import('system-config.js').then(function () {
+        System.import('main');
+      }).catch(console.error.bind(console));
+    </script>
+
+</body>
+
+</html>

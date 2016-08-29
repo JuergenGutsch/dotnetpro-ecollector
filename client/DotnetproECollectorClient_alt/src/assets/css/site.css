@@ -1,0 +1,6 @@
+﻿.timeline .fullSize img,
+.timeline video,
+.timeline audio {
+    width: 100%;
+    height: auto;
+}
