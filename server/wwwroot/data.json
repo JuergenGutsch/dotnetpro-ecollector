@@ -1,0 +1,26 @@
+{
+    "id": "nguid",
+    "message": "Hallo Welt\nhttp://asp.net-hacker.rocks/\nhttps://youtu.be/wzrnuUOoFNM",
+    "link": {
+        "URL": "http://asp.net-hacker.rocks/",
+        "Title": "ASP.NET Hacker",
+        "Description": "MVP for Visual Studio and Development Tools"
+    },
+    "documents":[
+        {
+            "name": "Video1",
+            "type": "Video",
+            "Source": "/data/nguid/Video1.mp4" 
+        },
+        {
+            "name": "3 Awesome Ideas",
+            "type": "Video",
+            "Source": "https://youtu.be/wzrnuUOoFNM" 
+        },
+        {
+            "name": "me",
+            "type": "image",
+            "Source": "/data/nguid/Video1.mp4"
+        }
+    ]
+}
