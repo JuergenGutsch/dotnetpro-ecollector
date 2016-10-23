@@ -9,7 +9,7 @@ namespace server.Models
         public DocumentType Type { get; set; }
         public string Source { get; set; }
 
-        public KnoledgeEntry KnoledgeEntry { get; set; }
+        public KnowledgeEntry KnowledgeEntry { get; set; }
         public int KnoledgeEntryId { get; set; }
     }
 }

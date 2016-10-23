@@ -31,13 +31,13 @@ namespace server.Data
             GenFu.GenFu.Configure<Link>()
                 .Fill(x => x.Id, 0);
 
-            GenFu.GenFu.Configure<KnoledgeEntry>()
+            GenFu.GenFu.Configure<KnowledgeEntry>()
                 .Fill(x => x.Id, 0)
                 .Fill(x => x.Content, () => Lorem.GenerateSentences(GenFu.GenFu.Random.Next(1, 6)))
                 .Fill(x => x.Link, () => null)
                 .Fill(x => x.Documents, () => null);
 
-            var entries = A.ListOf<KnoledgeEntry>(300);
+            var entries = A.ListOf<KnowledgeEntry>(300);
             foreach (var entry in entries)
             {
                 dbContext.KnoledgeEntries.Add(entry);

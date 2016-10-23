@@ -9,7 +9,7 @@ namespace server.Models
         public string Title { get; set; }
         public string Description { get; set; }
 
-        public KnoledgeEntry KnoledgeEntry { get; set; }
+        public KnowledgeEntry KnowledgeEntry { get; set; }
         public int KnoledgeEntryId { get; set; }
     }
 }

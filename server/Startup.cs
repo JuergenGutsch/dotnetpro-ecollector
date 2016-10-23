@@ -54,7 +54,7 @@ namespace server
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
 
-            services.AddTransient<IKnoledgeService, KnoledgeService>();
+            services.AddTransient<IKnowledgeService, KnowledgeService>();
             services.AddTransient<ISearchService, SearchService>();
         }
 

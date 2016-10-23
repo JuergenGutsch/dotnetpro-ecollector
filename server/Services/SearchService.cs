@@ -19,7 +19,7 @@ namespace server.Services
 
         public TimelineModel SearchItems(SearchModel search)
         {
-            IEnumerable<KnoledgeEntry> items = _dbContext.KnoledgeEntries.ToList();
+            IEnumerable<KnowledgeEntry> items = _dbContext.KnoledgeEntries.ToList();
 
             if (!string.IsNullOrWhiteSpace(search.SearchTerm))
             {

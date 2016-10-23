@@ -15,16 +15,16 @@ namespace server.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<KnoledgeEntry>()
+            builder.Entity<KnowledgeEntry>()
                 .HasOne(x => x.Link)
-                .WithOne(x => x.KnoledgeEntry)
+                .WithOne(x => x.KnowledgeEntry)
                 .HasForeignKey<Link>(x => x.KnoledgeEntryId);
-            builder.Entity<KnoledgeEntry>()
+            builder.Entity<KnowledgeEntry>()
                 .HasMany(x => x.Documents)
-                .WithOne(x => x.KnoledgeEntry)
+                .WithOne(x => x.KnowledgeEntry)
                 .HasForeignKey(x => x.KnoledgeEntryId);
 
-            builder.Entity<KnoledgeEntry>()
+            builder.Entity<KnowledgeEntry>()
                 .ToTable("KnoledgeEntries")
                 .HasKey("Id");
             builder.Entity<Document>()
@@ -36,7 +36,7 @@ namespace server.Data
                 .HasKey("Id");
         }
 
-        public DbSet<KnoledgeEntry> KnoledgeEntries { get; set; }
+        public DbSet<KnowledgeEntry> KnoledgeEntries { get; set; }
         public DbSet<Link> Links { get; set; }
         public DbSet<Document> Documents { get; set; }
     }
