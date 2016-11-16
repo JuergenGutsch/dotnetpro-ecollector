@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.Models;
 using server.ViewModels.EnterSearch;
@@ -19,52 +20,54 @@ namespace server.Services
 
         public TimelineModel SearchItems(SearchModel search)
         {
-            IEnumerable<KnowledgeEntry> items = _dbContext.KnoledgeEntries.ToList();
+            IEnumerable<KnowledgeEntry> items = _dbContext.KnoledgeEntries
+                    .Include(x => x.Documents)
+                    .ToList();
 
             if (!string.IsNullOrWhiteSpace(search.SearchTerm))
             {
-                items = items.Where(x => x.Content.Contains(search.SearchTerm));
+                items = items.Where(x => x.Content.ToLower().Contains(search.SearchTerm.ToLower()));
             }
 
-            if (search.FromDate.HasValue && search.FromDate.Value != DateTime.MinValue)
+            if (search.DayRange > 0)
             {
-                items = items.Where(x => x.Date >= search.FromDate.Value);
-            }
-            if (search.ToDate.HasValue && search.ToDate.Value != DateTime.MinValue)
-            {
-                items = items.Where(x => x.Date <= search.ToDate.Value);
+                var date = DateTime.Now.AddDays(-search.DayRange);
+                items = items.Where(x => x.Date >= date);
             }
 
-            if (search.Type != SearchType.All.ToString())
+            var types = (SearchType)Enum.Parse(typeof(SearchType), search.Types);
+
+            if (types != (types & SearchType.All))
             {
-                if (search.Type == SearchType.Videos.ToString())
+                if (types == (types & SearchType.Videos))
                 {
                     items = items.Where(x =>
                         x.Documents.Any(y =>
-                            y.Type == DocumentType.Video));
+                            y.Type == (y.Type & DocumentType.Video)));
                 }
-                if (search.Type == SearchType.Audios.ToString())
+                if (types == (types & SearchType.Audios))
                 {
                     items = items.Where(x =>
                         x.Documents.Any(y =>
-                            y.Type == DocumentType.Audio));
+                            y.Type == (y.Type & DocumentType.Audio)));
                 }
-                if (search.Type == SearchType.Images.ToString())
+                if (types == (types & SearchType.Images))
                 {
                     items = items.Where(x =>
                         x.Documents.Any(y =>
-                            y.Type == DocumentType.Image));
+                            y.Type == (y.Type & DocumentType.Image)));
                 }
-                if (search.Type == SearchType.Documents.ToString())
+                if (types == (types & SearchType.Documents))
                 {
                     items = items.Where(x =>
                         x.Documents.Any(y =>
-                            y.Type == DocumentType.Document));
+                            y.Type == (y.Type & DocumentType.Document)));
                 }
             }
 
             var count = items.Count();
             var result = items
+                  .OrderByDescending(x => x.Date)
                   .Skip(search.PageNumber * search.PageSize)
                   .Take(search.PageSize)
                   .Select(x => new TimelineItemModel

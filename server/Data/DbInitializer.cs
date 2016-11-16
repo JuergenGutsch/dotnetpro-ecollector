@@ -1,5 +1,5 @@
+using System;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using GenFu;
 using GenFu.ValueGenerators.Lorem;
 using server.Models;
@@ -22,10 +22,10 @@ namespace server.Data
                 .Fill(x => x.Id, 0)
                 .Fill(x => x.Type).WithRandom(new[]
                 {
-                    DocumentType.Audio,
-                    DocumentType.Video,
-                    DocumentType.Image,
-                    DocumentType.Document
+                DocumentType.Audio,
+                DocumentType.Video,
+                DocumentType.Image,
+                DocumentType.Document
                 });
 
             GenFu.GenFu.Configure<Link>()
@@ -35,7 +35,15 @@ namespace server.Data
                 .Fill(x => x.Id, 0)
                 .Fill(x => x.Content, () => Lorem.GenerateSentences(GenFu.GenFu.Random.Next(1, 6)))
                 .Fill(x => x.Link, () => null)
-                .Fill(x => x.Documents, () => null);
+                .Fill(x => x.Documents, () => null)
+                .Fill(x => x.Date, () => new DateTime(
+                    GenFu.GenFu.Random.Next(2010, 2016),
+                    GenFu.GenFu.Random.Next(1, 12),
+                    GenFu.GenFu.Random.Next(1, 29),
+                    GenFu.GenFu.Random.Next(0, 23),
+                    GenFu.GenFu.Random.Next(0, 59),
+                    GenFu.GenFu.Random.Next(0, 59)));
+
 
             var entries = A.ListOf<KnowledgeEntry>(300);
             foreach (var entry in entries)

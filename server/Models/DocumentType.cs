@@ -1,5 +1,8 @@
+using System;
+
 namespace server.Models
 {
+    [Flags]
     public enum DocumentType
     {
         Audio,

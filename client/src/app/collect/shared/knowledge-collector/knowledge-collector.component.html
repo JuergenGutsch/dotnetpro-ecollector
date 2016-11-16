@@ -1,0 +1,25 @@
+<form class="form">
+	<div class="row">
+		<div class="col-md-12" style="margin-bottom: 8px">
+			<textarea class="form-control" 
+                      name="text" 
+                      rows="8" 
+                      placeholder="Add your content here. Markdown is allowed." 
+                      [(ngModel)]="text"></textarea>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8">
+			<p>
+				<input name="files" 
+                       type="file" 
+                       (change)="onChange($event)" 
+                       multiple />
+			</p>
+
+		</div>
+		<div class="col-md-4">
+			<button type="button" class="btn btn-primary pull-right" (click)="save()">Save</button>
+		</div>
+	</div>
+</form>

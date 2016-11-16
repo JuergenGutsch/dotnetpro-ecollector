@@ -1,0 +1,30 @@
+<div class="panel-heading">
+	<p>
+		Collector: <a href="#">{{item.user}}</a>; collected: {{item.date | date:longDate}}
+		<button class="btn btn-link pull-right"><span class="glyphicon glyphicon-trash"></span>Delete</button>
+		<button class="btn btn-link pull-right"><span class="glyphicon glyphicon-zoom-in"></span>Show all</button>
+	</p>
+</div>
+<div class="panel-body">
+	{{item.content}}
+	<hr *ngIf="item.documents.length > 0">
+	<div *ngIf="item.documents.length > 0">
+		<div *ngIf="item.documents[0].type==='Video'">
+			<video [attr.src]="item.documents[0].src" controls></video>
+		</div>
+		<div *ngIf="item.documents[0].type==='Audio'">
+			<audio [attr.src]="item.documents[0].src" width="100%" controls></audio>
+		</div>
+		<div *ngIf="item.documents[0].type==='Image'">
+			<div class="fullSize">
+				<a href="bigsrc" data-lightbox="">
+					<img [attr.src]="item.documents[0].src" [attr.alt]="item.documents[0].name" />
+				</a>
+			</div>
+		</div>
+		<hr *ngIf="item.documents.length > 1">
+		<ul *ngIf="item.documents.length > 1">
+			<li *ngFor="let document of item.documents | slice:1"><a [href]="document.src">{{document.name}}</a></li>
+		</ul>
+	</div>
+</div>

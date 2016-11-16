@@ -1,0 +1,37 @@
+
+<form class="form">
+    <div class="row">
+        <div class="col-md-12" 
+             style="margin-bottom: 8px">
+            <input type="text"
+                   name="searchtearm" 
+                   class="form-control"
+                   placeholder="search term." 
+                   [(ngModel)]="searchTerm" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <select [(ngModel)]="dayRange" name="dayRange" class="form-control">
+                <option value="0" selected>All Entries</option>
+                <option value="1">Last 24 hours</option>
+                <option value="3">Last 3 Days</option>
+                <option value="7">Last 7 Days</option>
+                <option value="14">Last 2 Weeks</option>
+                <option value="28">Last 4 Weeks</option>
+                <option value="90">Last 90 Days</option>
+                <option value="360">Last 12 Months</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="button" 
+                    class="btn btn-primary pull-right" 
+                    (click)="doSearch()">Search</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <label *ngFor="let type of searchTypes"><input type="checkbox" [(ngModel)]="type.selected" [name]="type.name"/>{{type.name}}&nbsp;</label>            
+        </div>
+    </div>
+</form>
