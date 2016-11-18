@@ -17,6 +17,7 @@ import { TimelineItemComponent } from './shared/timeline-item/timeline-item.comp
 import { SearchService } from './search/shared/search.service';
 import { CollectService } from './collect/shared/collect.service';
 import { UploadService } from './collect/shared/upload.service';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { UploadService } from './collect/shared/upload.service';
     KnowledgeCollectorComponent,
     SearchFormComponent,
     SearchTimelineComponent,
-    TimelineItemComponent
+    TimelineItemComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

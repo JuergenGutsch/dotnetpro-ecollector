@@ -1,3 +1,5 @@
+using System;
+
 namespace server.ViewModels.Timeline
 {
     public class DocumentModel

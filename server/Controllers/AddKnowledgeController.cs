@@ -12,6 +12,9 @@ using server.Models;
 using server.Services;
 using server.ViewModels.Timeline;
 using ContentDispositionHeaderValue = Microsoft.Net.Http.Headers.ContentDispositionHeaderValue;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.Extensions.Options;
 
 namespace server.Controllers
 {
@@ -22,19 +25,22 @@ namespace server.Controllers
         private readonly IKnowledgeService _knowledgeService;
         private readonly ILogger _logger;
         private readonly IHostingEnvironment _env;
+        private readonly AppSettings _settings;
 
         public AddKnowledgeController(
             IKnowledgeService knowledgeService,
             ILoggerFactory loggerFactory,
-            IHostingEnvironment env)
+            IHostingEnvironment env,
+            IOptions<AppSettings> settings)
         {
             _knowledgeService = knowledgeService;
             _logger = loggerFactory.CreateLogger(nameof(AddKnowledgeController));
             _env = env;
+            _settings = settings.Value;
         }
 
         [HttpPut("collect")]
-        public AddResult AddKnoledge()
+        public async Task<AddResult> AddKnoledge()
         {
             var itemId = Guid.NewGuid();
 
@@ -44,7 +50,7 @@ namespace server.Controllers
             var files = Request.Form.Files.ToList();
 
             // save to disk
-            var filePaths = SaveFiles(itemId, files);
+            var filePaths = await SaveFiles(itemId, files);
 
             // map to DocumentModel
             var documents = ParseFiles(filePaths);
@@ -89,9 +95,10 @@ namespace server.Controllers
             };
         }
 
-        IEnumerable<string> SaveFiles(Guid itemId, ICollection<IFormFile> files)
+        private async Task<IDictionary<string, Uri>> SaveFiles(Guid itemId, ICollection<IFormFile> files)
         {
             _logger.LogInformation($"Files: {files.Count}");
+            var result = new Dictionary<string, Uri>();
             foreach (var file in files)
             {
                 var filename = ContentDispositionHeaderValue
@@ -101,20 +108,28 @@ namespace server.Controllers
 
                 _logger.LogInformation($"FileName: {filename}");
 
-                var folderPath = EnsureFolders(itemId);
+                var credentials = new StorageCredentials(_settings.AzureStorageName, _settings.AzureStorageKey);
+                var storageAccount = new CloudStorageAccount(credentials, true);
 
-                var filePath = Path.Combine(folderPath, filename);
-                DeleteExistingFile(filePath);
+                var fileClient = storageAccount.CreateCloudFileClient();
 
-                using (var fs = System.IO.File.Create(filePath))
+                var share = fileClient.GetShareReference(_settings.AzureStorageFileShareName);
+                if (await share.CreateIfNotExistsAsync())
                 {
-                    file.CopyTo(fs);
-                    fs.Flush();
-                    fs.Dispose();
-                }
+                    var directory = share.GetRootDirectoryReference();
+                    var fileRef = directory.GetFileReference(filename);
+                    if (await fileRef.DeleteIfExistsAsync())
+                    {
+                        using (var stream = file.OpenReadStream())
+                        {
+                            await fileRef.UploadFromStreamAsync(stream);
+                        }
 
-                yield return filename;
+                        result.Add(filename, fileRef.Uri);
+                    }
+                }
             }
+            return result;
         }
 
         private static void DeleteExistingFile(string filePath)
@@ -145,15 +160,15 @@ namespace server.Controllers
             return folderPath;
         }
 
-        IEnumerable<DocumentModel> ParseFiles(IEnumerable<string> filePaths)
+        IEnumerable<DocumentModel> ParseFiles(IDictionary<string, Uri> files)
         {
-            foreach (var path in filePaths)
+            foreach (var item in files)
             {
-                var info = new FileInfo(path);
+                var info = new FileInfo(item.Key);
                 var model = new DocumentModel
                 {
                     Name = info.Name,
-                    Source = path,
+                    Source = item.Value.ToString(),
                     Type = GetTpeByExtension(info.Extension).ToString()
                 };
                 yield return model;

@@ -22,10 +22,10 @@ namespace server.Data
                 .Fill(x => x.Id, 0)
                 .Fill(x => x.Type).WithRandom(new[]
                 {
-                DocumentType.Audio,
-                DocumentType.Video,
-                DocumentType.Image,
-                DocumentType.Document
+                    DocumentType.Audio,
+                    DocumentType.Video,
+                    DocumentType.Image,
+                    DocumentType.Document
                 });
 
             GenFu.GenFu.Configure<Link>()

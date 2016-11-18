@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using server.Authentication;
 using server.Data;
 using server.Models;
@@ -29,16 +30,31 @@ namespace server
 
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
+            Env = env;
         }
 
+        public IHostingEnvironment Env { get; set; }
         public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions();
+            services.Configure<AppSettings>(
+                Configuration.GetSection("AppSettings"));
+            
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+                {
+                    if (Env.IsDevelopment())
+                    {
+                        options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+                    }
+                    else
+                    {
+                        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                    }
+                });
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -64,11 +80,18 @@ namespace server
             IHostingEnvironment env,
             ILoggerFactory loggerFactory,
             ApplicationDbContext dbContext,
+            IOptions<AppSettings> settings,
             IAuthOptionsProvider authOptionsProvider)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            app.UseCors(builder => builder
+                .WithOrigins(settings.Value.CorsAllowedOrigin)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials());
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -80,19 +103,12 @@ namespace server
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseCors(builder => builder
-                .WithOrigins("http://localhost:4200")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials());
-
             app.UseStaticFiles();
 
             app.UseIdentity();
+
             // Token Auth Configuration
             app.UseTokenAuthentication(authOptionsProvider);
-
-            // Add external authentication middleware below. To configure them please see https://go.microsoft.com/fwlink/?LinkID=532715
 
             app.UseMvc();
 
