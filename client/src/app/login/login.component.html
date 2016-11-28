@@ -1,0 +1,13 @@
+<form>
+    <h1>HSK Login</h1>
+    <div>
+        <input type="text" name="email" [(ngModel)]="login.email" class="form-control" placeholder="E-Mail" required="" />
+    </div>
+    <div>
+        <input type="password" name="passwort" [(ngModel)]="login.password" class="form-control" placeholder="Passwort" required="" />
+    </div>
+    <div>
+        <button type="submit" class="btn btn-default submit pull-right" href="javascript:;" (click)="onLogin()">Log in</button>
+    </div>
+    <div class="clearfix"></div>
+</form>

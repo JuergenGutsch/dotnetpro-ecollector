@@ -1,6 +1,7 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { Headers, RequestOptions, Response } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
+import {AuthHttp} from "angular2-jwt";
 
 import { ICollectModel } from './icollect-model';
 import { ITimelineModel } from '../../shared/itimeline-model';
@@ -10,10 +11,10 @@ import { UploadService } from './upload.service';
 @Injectable()
 export class CollectService {
 
-    public TimelineUpdated: EventEmitter<true> = new EventEmitter();
+    public TimelineUpdated: EventEmitter<boolean> = new EventEmitter<boolean>();
     private _service: string = 'http://localhost:5000/';
 
-    constructor(private _http: Http, private _uploadService: UploadService) { }
+    constructor(private _authHttp: AuthHttp, private _uploadService: UploadService) { }
 
     Collect(collectModel: ICollectModel): Promise<boolean> {
         let model = { text: collectModel.text };
@@ -38,7 +39,7 @@ export class CollectService {
             'Page-Size': page.pageSize
         });
         let options = new RequestOptions({ headers: headers });
-        return this._http.get(`${this._service}api/timeline`, options)
+        return this._authHttp.get(`${this._service}api/timeline`, options)
             .toPromise()
             .then(this.extractData)
             .catch(this.handleError);

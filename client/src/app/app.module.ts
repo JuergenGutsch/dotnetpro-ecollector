@@ -2,8 +2,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { provideAuth } from 'angular2-jwt';
 
-import { AppRoutingModule }   from './app-routing.module';
+import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
 import { CollectComponent } from './collect/collect.component';
@@ -13,11 +14,13 @@ import { KnowledgeCollectorComponent } from './collect/shared/knowledge-collecto
 import { SearchFormComponent } from './search/shared/search-form/search-form.component';
 import { SearchTimelineComponent } from './search/shared/search-timeline/search-timeline.component';
 import { TimelineItemComponent } from './shared/timeline-item/timeline-item.component';
+import { LoginComponent } from './login/login.component';
 
 import { SearchService } from './search/shared/search.service';
 import { CollectService } from './collect/shared/collect.service';
 import { UploadService } from './collect/shared/upload.service';
-import { LoginComponent } from './login/login.component';
+import { AccountService } from './login/account.service';
+import { AccountManagerService } from './login/account-manager.service';
 
 @NgModule({
   declarations: [
@@ -40,7 +43,16 @@ import { LoginComponent } from './login/login.component';
   providers: [
     CollectService,
     SearchService,
-    UploadService
+    UploadService,
+    AccountService,
+    AccountManagerService,
+    provideAuth({
+      tokenName: 'jwt',
+      tokenGetter: () => localStorage.getItem('jwt'),
+      globalHeaders: [{ 'Content-Type': 'application/json' }],
+      noJwtError: true,
+      noTokenScheme: true
+    })
   ],
   bootstrap: [AppComponent]
 })

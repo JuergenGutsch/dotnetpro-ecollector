@@ -3,12 +3,18 @@ using System.Linq;
 using GenFu;
 using GenFu.ValueGenerators.Lorem;
 using server.Models;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace server.Data
 {
     public static class DbInitializer
     {
-        public static void Initialize(ApplicationDbContext dbContext)
+        public static async Task Initialize(
+            ApplicationDbContext dbContext,
+            UserManager<ApplicationUser> userManager)
         {
             dbContext.Database.EnsureCreated();
 
@@ -17,6 +23,8 @@ namespace server.Data
             {
                 return;   // DB has been seeded
             }
+
+            await CreateUserAsync(dbContext, userManager);
 
             GenFu.GenFu.Configure<Document>()
                 .Fill(x => x.Id, 0)
@@ -65,5 +73,61 @@ namespace server.Data
                 dbContext.SaveChanges();
             }
         }
+        public static async Task<IdentityResult> CreateUserAsync(
+            ApplicationDbContext dbContext,
+            UserManager<ApplicationUser> userManager)
+        {
+            var roleStore = new RoleStore<IdentityRole>(dbContext);
+            var roleName = "Administrator";
+            var result = await roleStore.CreateAsync(new IdentityRole
+            {
+                Name = roleName,
+                NormalizedName = roleName
+            });
+            await dbContext.SaveChangesAsync();
+
+            var userFirstName = "Max";
+            var userLastName = "Muster";
+            var userEmail = "max.muster@domain.com";
+
+            var applicationUser = new ApplicationUser
+            {
+                UserName = userEmail,
+                Email = userEmail,
+                FirstName = userFirstName,
+                LastName = userLastName
+            };
+
+            IdentityResult identityResult;
+
+            var password = "HskPwd2016!";
+            identityResult = await userManager.CreateAsync(applicationUser, password);
+            await dbContext.SaveChangesAsync();
+
+            if (identityResult.Succeeded)
+            {
+                identityResult = await userManager.AddToRoleAsync(applicationUser, roleName);
+
+                await userManager.AddClaimAsync(applicationUser, new Claim(ClaimsIdentity.DefaultNameClaimType, userEmail));
+                await userManager.AddClaimAsync(applicationUser, new Claim("FirstName", userFirstName));
+                await userManager.AddClaimAsync(applicationUser, new Claim("LastName", userLastName));
+                await userManager.AddClaimAsync(applicationUser, new Claim(ClaimsIdentity.DefaultRoleClaimType, roleName));
+
+                if (identityResult.Succeeded)
+                {
+                    var code = await userManager.GenerateEmailConfirmationTokenAsync(applicationUser);
+                    identityResult = await userManager.ConfirmEmailAsync(applicationUser, code);
+                }
+            }
+
+            if (!identityResult.Succeeded)
+            {
+                var errmsg = identityResult.Errors.Aggregate("", (current, err) => current + $"{err.Description}\n");
+                return identityResult;
+            }
+
+            return identityResult;
+        }
+
     }
 }

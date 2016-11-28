@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +11,7 @@ using server.Authentication;
 using server.Data;
 using server.Models;
 using server.Services;
+using System.Threading.Tasks;
 
 namespace server
 {
@@ -75,11 +77,12 @@ namespace server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(
+        public async void Configure(
             IApplicationBuilder app,
             IHostingEnvironment env,
             ILoggerFactory loggerFactory,
             ApplicationDbContext dbContext,
+            UserManager<ApplicationUser> userManager,
             IOptions<AppSettings> settings,
             IAuthOptionsProvider authOptionsProvider)
         {
@@ -112,7 +115,7 @@ namespace server
 
             app.UseMvc();
 
-            DbInitializer.Initialize(dbContext);
+           await DbInitializer.Initialize(dbContext, userManager);
         }
     }
 }

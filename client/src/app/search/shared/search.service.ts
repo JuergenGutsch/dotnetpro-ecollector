@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
+import {AuthHttp} from "angular2-jwt";
 
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
@@ -14,7 +15,7 @@ import { ITimelineModel } from '../../shared/itimeline-Model';
 export class SearchService {
     private _service: string = 'http://localhost:5000/';
 
-    constructor(private _http: Http) { }
+    constructor(private _authHttp: AuthHttp) { }
 
     search(searchModel: ISearchModel): Promise<ITimelineModel> {
         let headers = new Headers({
@@ -28,7 +29,7 @@ export class SearchService {
             'PageSize': searchModel.pageSize
         }
         let options = new RequestOptions({ headers: headers });
-        return this._http.post(`${this._service}api/search`, body, options)
+        return this._authHttp.post(`${this._service}api/search`, JSON.stringify(body), options)
             .toPromise()
             .then(this.extractData)
             .catch(this.handleError);
